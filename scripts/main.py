@@ -40,7 +40,7 @@ def generate_image(ack, client, say, body):
     
     try:
         if using_user is not None:
-            say(f"Please try again after <@{using_user}> finishes genrating.")
+            say(f"Failed to generate an image for for the prompt `{prompt}`. Please try again after <@{using_user}> finishes genrating.")
 
         else:
             if pipe is None:
