@@ -1,64 +1,76 @@
 # Stable Diffusion Slack Bot
-日本語でプロンプトを与えるとStable Diffusionの画像を投稿してくれるSlack Bot  
-元画像を指定しての生成もできるコマンドも提供。
-RTX2070 8GB環境とGTX2060 6GB環境で操作確認済み。
 
-## 環境導入と実行
-Stable Diffusionの公式版が動く環境の整備をした前提で以下を実行。([構築方法参考](https://zenn.dev/koyoarai_/articles/02f3ed864c6127bb2049))
+This is a slack bot to generate an image with Stable Diffusion using Japanese prompts and post it.
+This app is proved to be operated under AWS EC2 instance g4dn.xlarge.
+
+## How to install and run
+
+Before you go, you need to prepare the environment to run [the certified version of Stable Diffusion v1-4](https://huggingface.co/CompVis/stable-diffusion-v1-4).
+
+Run the following commands.
 
 ```
 conda env create -f environment.yaml
 conda activate sdbot
 ```
-以上を行って `.env` ファイルにHuggingfaceのトークンと、SlackのAppトークンとBotトークンを設定。
+
+Then, set the HuggingFace token, Slack App Token, Slack Bot Token, and Slack Slash Command in the `.env` file.
 
 ```
 YOUR_TOKEN=hf_xxxxxxxxxxxxxx
 SLACK_BOT_TOKEN=xoxb-999999999999999999999999
 SLACK_APP_TOKEN=xapp-999999999999999999999999
+COMMAND=/sdbot
 ```
 
-設定後、実行は以下のコマンドの通り。
+After you make the `.env` file, you can run it using the following command.
 
 ```
 python3 scripts/main.py
 ```
-## Stable Diffusion Botの使い方
 
-- プロンプトから画像生成(t2i): !img [プロンプト]
-- 画像から画像生成(i2i): !img-i [URL] [0.0～1.0までの強度] [プロンプト]
-- waifu-diffusionモデルをつかってプロンプトから画像生成(t2i-waifu): !img-w [プロンプト]
-- ヘルプ表示: !img-help
+## How to use
 
-なお、画像から画像生成する際のURLはパブリックにアクセス可能なURLかSlack内の画像のURLである必要があります。  
+You can generate an image using the slash command you set in the `.env` file before and any prompt like this.
 
-## Slackのアプリに必要な権限
-アプリの作り方は[このドキュメント](https://slack.dev/bolt-python/ja-jp/tutorial/getting-started)に準拠。
-必要権限は以下。
+```
+/sdbot a jumping cat in a garden
+```
+
+You can display help messages using the following slash command.
+
+```
+/sdbot help
+```
+
+## Configurations of the slack app
+
+You can create your app acccording to [this document](https://slack.dev/bolt-python/ja-jp/tutorial/getting-started).
+You need to set these configurations in the app.
+
+### Socket Mode
+- turn `Enable Socket Mode` on
+- input `Token Name`
+- copy `Token` and paste it to the `SLACK_APP_TOKEN` in the `.env` file.
+
+### Slash Commands
+- hit the `Create New Command` button
+- input these settings
+  - Command: the slash command you set in the `.env` file
+  - Short Description: `Generate an image`
+  - Usage Hint: `[prompt]`
 
 ### OAuth & Permissions - Bot Token Scopes
-- chat:write
-- files:write
-- files:read
+- grant these OAuth Scopes
+  - chat:write
+  - files:write
+  - files:read
 
-### Event Subscriptions
-- message.channels
-- message.groups
-- message.im
-- message.mpim 
+### OAuth & Permissions - OAuth Tokens for Your Workspace
+- hit the `Install to Workspace` button
+- copy `Bot User OAuth Token` and paste it to the `SLACK_BOT_TOKEN` in the `.env` file.
 
-## トラブルシューティング
+## Acknowledgments
 
-以下のエラーが出る。
-
-```
-RuntimeError: CUDA error: unknown error
-CUDA kernel errors might be asynchronously reported at some other API call,so the stacktrace below might be incorrect.
-For debugging consider passing CUDA_LAUNCH_BLOCKING=1.
-```
-
-ビデオメモリが足りません。 `main.py` のコード内の画像のサイズを指定しているところを512ではなく8の倍数の384か256にして対応してください。
-
-## 参考ドキュメント
-- [Stable Diffusion with 🧨 Diffusers](https://huggingface.co/blog/stable_diffusion)
-- [image-2-image using diffusers](https://colab.research.google.com/github/patil-suraj/Notebooks/blob/master/image_2_image_using_diffusers.ipynb#scrollTo=V24njWQBC8eC)
+This repository is forked from [sifue/stable-diffusion-bot](https://github.com/sifue/stable-diffusion-bot).
+This version is modified to support slash commands and remove some features from the original repository.
